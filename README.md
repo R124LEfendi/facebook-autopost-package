@@ -75,6 +75,16 @@ META_APP_ID="your-app-id"
 META_SECRET_KEY="your-app-secret"
 ```
 
+### 🔑 Setting up Facebook Login (OAuth 2.0)
+To enable the seamless **Connect with Facebook** button (OAuth 2.0 flow) in the dashboard:
+1. Go to your **[Meta Developer Portal](https://developers.facebook.com/)** and select your App.
+2. In the left menu, click **Add Product** and select **Facebook Login for Business** (or standard Facebook Login).
+3. Under the **Facebook Login Settings**, add your application's Callback URI to the **Valid OAuth Redirect URIs** input:
+   ```text
+   https://your-domain.com/facebook/callback
+   ```
+   *(Note: Facebook requires secure `https://` URLs for redirection in production, but supports http for `localhost`/`127.0.0.1` environments)*
+
 ---
 
 ## 💻 CLI Command Usage
@@ -106,3 +116,19 @@ Go to:
 1. Paste a **Facebook User Access Token** in the dashboard form.
 2. Click **Import Facebook Account** to automatically register the account and import all its pages.
 3. Check the boxes of the target pages, type your message or link, select an optional photo, and hit **Publish Autopost Now**!
+
+---
+
+## 🎨 Customizing & Publishing the UI
+
+If you want to customize the look and feel, change the colors, modify layout elements, or translate texts, you can publish the package's Blade views directly into your Laravel application's resources directory:
+
+```bash
+php artisan vendor:publish --tag=facebook-autopost-views
+```
+
+This will copy the dashboard template to:
+`resources/views/vendor/facebook-autopost/dashboard.blade.php`
+
+Once published, Laravel will automatically prioritize and load your custom file at `resources/views/vendor/facebook-autopost/dashboard.blade.php` instead of the default package layout, giving you 100% freedom to modify or style the view to match your application's design system!
+

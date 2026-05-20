@@ -243,4 +243,169 @@ class FacebookController extends Controller
 
         return redirect()->route('facebook.dashboard')->with('success', "Successfully posted to all {$successCount} selected pages!");
     }
+
+    /**
+     * Renew/update the access token of a Facebook Account and its pages.
+     */
+    public function renewToken(Request $request, FacebookAccount $account)
+    {
+        $request->validate([
+            'new_access_token' => 'required|string',
+        ]);
+
+        $token = $request->input('new_access_token');
+
+        try {
+            // Exchange for a long-lived user access token
+            $longLivedToken = $this->fbService->exchangeToLongLivedToken($token);
+
+            // Fetch user profile details to ensure the token belongs to the SAME Facebook user ID!
+            $profile = $this->fbService->getUserProfile($longLivedToken);
+
+            if ($profile['id'] !== $account->fb_user_id) {
+                return redirect()->route('facebook.dashboard')->with('error', "Token mismatch: The new token belongs to '{$profile['name']}' (ID: {$profile['id']}), but this account is for '{$account->name}' (ID: {$account->fb_user_id}).");
+            }
+
+            // Update Facebook Account token and details
+            $account->update([
+                'access_token' => $longLivedToken,
+                'name' => $profile['name'],
+                'email' => $profile['email'] ?? $account->email,
+                'avatar' => $profile['avatar'] ?? $account->avatar,
+            ]);
+
+            // Fetch and update pages for this account
+            $pages = $this->fbService->getUserPages($longLivedToken);
+            $updatedCount = 0;
+
+            foreach ($pages as $p) {
+                $existingPage = FacebookPage::where('facebook_account_id', $account->id)
+                    ->where('page_id', $p['page_id'])
+                    ->first();
+
+                if ($existingPage) {
+                    $existingPage->update([
+                        'access_token' => $p['access_token'],
+                        'name' => $p['name'],
+                        'category' => $p['category'],
+                        'avatar' => $p['avatar'] ?? $existingPage->avatar,
+                    ]);
+                    $updatedCount++;
+                }
+            }
+
+            return redirect()->route('facebook.dashboard')->with('success', "Access token for '{$account->name}' and {$updatedCount} pages successfully updated!");
+
+        } catch (Exception $e) {
+            return redirect()->route('facebook.dashboard')->with('error', "Failed to renew token: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Redirect the user to the Facebook authentication page.
+     */
+    public function redirectToFacebook()
+    {
+        $appId = config('services.facebook.app_id');
+        $redirectUri = route('facebook.callback');
+        
+        if (!$appId) {
+            return redirect()->route('facebook.dashboard')->with('error', 'Facebook App ID is not configured. Please check your services.php configuration.');
+        }
+
+        // Build OAuth URL
+        $permissions = ['public_profile', 'email', 'pages_read_engagement', 'pages_manage_posts'];
+        $query = http_build_query([
+            'client_id' => $appId,
+            'redirect_uri' => $redirectUri,
+            'scope' => implode(',', $permissions),
+            'response_type' => 'code',
+            'state' => csrf_token(), // CSRF Protection
+        ]);
+
+        return redirect("https://www.facebook.com/v20.0/dialog/oauth?{$query}");
+    }
+
+    /**
+     * Handle the callback from Facebook authentication.
+     */
+    public function handleCallback(Request $request)
+    {
+        if ($request->has('error')) {
+            return redirect()->route('facebook.dashboard')->with('error', 'Facebook Login cancelled or failed: ' . $request->input('error_description', 'Unknown error'));
+        }
+
+        $code = $request->input('code');
+        
+        if (!$code) {
+            return redirect()->route('facebook.dashboard')->with('error', 'No authorization code returned from Facebook.');
+        }
+
+        try {
+            $appId = config('services.facebook.app_id');
+            $appSecret = config('services.facebook.app_secret');
+            $redirectUri = route('facebook.callback');
+
+            // 1. Exchange authorization code for a short-lived User Access Token
+            $response = \Illuminate\Support\Facades\Http::get("https://graph.facebook.com/v20.0/oauth/access_token", [
+                'client_id' => $appId,
+                'client_secret' => $appSecret,
+                'redirect_uri' => $redirectUri,
+                'code' => $code,
+            ]);
+
+            if ($response->failed()) {
+                throw new Exception("Failed to exchange code: " . json_encode($response->json()));
+            }
+
+            $shortLivedToken = $response->json()['access_token'] ?? null;
+
+            if (!$shortLivedToken) {
+                throw new Exception("No access token returned in code exchange.");
+            }
+
+            // 2. Exchange short-lived token for a long-lived User Access Token (60 days)
+            $longLivedToken = $this->fbService->exchangeToLongLivedToken($shortLivedToken);
+
+            // 3. Fetch user profile details
+            $profile = $this->fbService->getUserProfile($longLivedToken);
+
+            // 4. Save/Update Facebook Account
+            $account = FacebookAccount::updateOrCreate(
+                ['fb_user_id' => $profile['id']],
+                [
+                    'user_id' => auth()->id() ?: null,
+                    'name' => $profile['name'],
+                    'email' => $profile['email'] ?? null,
+                    'access_token' => $longLivedToken,
+                    'avatar' => $profile['avatar'] ?? null,
+                ]
+            );
+
+            // 5. Fetch and save User Pages
+            $pages = $this->fbService->getUserPages($longLivedToken);
+            $importedCount = 0;
+
+            foreach ($pages as $p) {
+                FacebookPage::updateOrCreate(
+                    ['page_id' => $p['page_id']],
+                    [
+                        'facebook_account_id' => $account->id,
+                        'name' => $p['name'],
+                        'access_token' => $p['access_token'],
+                        'category' => $p['category'],
+                        'avatar' => $p['avatar'],
+                        'is_active' => true,
+                    ]
+                );
+                $importedCount++;
+            }
+
+            return redirect()->route('facebook.dashboard')->with('success', "Connected account '{$account->name}' via Facebook Login and imported {$importedCount} pages successfully!");
+
+        } catch (Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Facebook OAuth Callback Error: " . $e->getMessage());
+            return redirect()->route('facebook.dashboard')->with('error', "Facebook authentication failed: " . $e->getMessage());
+        }
+    }
 }

@@ -32,8 +32,13 @@ class FacebookAutopostServiceProvider extends ServiceProvider
         // Load web routes from package routes directory
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
 
-        // Register Console Command
+        // Register Console Command and Assets for CLI
         if ($this->app->runningInConsole()) {
+            // Publish Views for independent customization
+            $this->publishes([
+                __DIR__ . '/../resources/views' => resource_path('views/vendor/facebook-autopost'),
+            ], 'facebook-autopost-views');
+
             $this->commands([
                 FacebookPostCommand::class,
             ]);

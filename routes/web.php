@@ -8,6 +8,9 @@ Route::middleware(['web'])->prefix('facebook')->name('facebook.')->group(functio
     Route::post('/connect-user-token', [FacebookController::class, 'connectUserToken'])->name('connect.user-token');
     Route::post('/connect-single-page', [FacebookController::class, 'connectSinglePage'])->name('connect.single-page');
     Route::post('/toggle-page/{page}', [FacebookController::class, 'togglePage'])->name('page.toggle');
+    Route::get('/redirect', [FacebookController::class, 'redirectToFacebook'])->name('redirect');
+    Route::get('/callback', [FacebookController::class, 'handleCallback'])->name('callback');
     Route::delete('/account/{account}', [FacebookController::class, 'deleteAccount'])->name('account.delete');
+    Route::post('/account/{account}/renew', [FacebookController::class, 'renewToken'])->name('account.renew');
     Route::post('/post', [FacebookController::class, 'post'])->name('post');
 });

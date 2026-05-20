@@ -621,12 +621,23 @@
                 <h3 class="card-title"><i class="fas fa-link"></i> Connect Facebook</h3>
                 
                 <div class="token-mode-switch">
-                    <button class="tab-btn active" onclick="switchTokenMode('user-mode', this)">User Token (Auto Pages)</button>
+                    <button class="tab-btn active" onclick="switchTokenMode('oauth-mode', this)">Facebook Login (Easy)</button>
+                    <button class="tab-btn" onclick="switchTokenMode('user-mode', this)">User Token Explorer</button>
                     <button class="tab-btn" onclick="switchTokenMode('single-mode', this)">Single Page Token</button>
                 </div>
 
+                <!-- Facebook OAuth Mode -->
+                <div id="form-oauth-mode" style="text-align: center; padding: 1.25rem 0;">
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5;">
+                        Fast and secure connection using standard Meta authentication. Instantly import your profile and all managed Facebook Pages in a single click.
+                    </p>
+                    <a href="{{ route('facebook.redirect') }}" class="btn btn-primary" style="background-color: #1877f2; box-shadow: 0 4px 14px rgba(24, 119, 242, 0.4); font-weight: 700; font-size: 1rem; padding: 0.85rem 1.5rem; width: auto; display: inline-flex; border-radius: var(--radius-md); border: none; color: white; cursor: pointer; text-decoration: none;">
+                        <i class="fab fa-facebook" style="font-size: 1.25rem; margin-right: 0.5rem;"></i> Connect with Facebook
+                    </a>
+                </div>
+
                 <!-- User Access Token Form -->
-                <form id="form-user-mode" action="{{ route('facebook.connect.user-token') }}" method="POST">
+                <form id="form-user-mode" action="{{ route('facebook.connect.user-token') }}" method="POST" style="display: none;">
                     @csrf
                     <div class="form-group">
                         <label for="user_access_token">Facebook User Access Token</label>
@@ -689,12 +700,37 @@
                                         </div>
                                     </div>
                                     
-                                    <form action="{{ route('facebook.account.delete', $account->id) }}" method="POST" onsubmit="return confirm('Disconnect this account and all associated pages?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="switch-toggle" style="color: var(--accent-danger); opacity: 0.8;" title="Disconnect Account">
-                                            <i class="fas fa-trash-alt"></i>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <button type="button" class="switch-toggle" style="color: var(--accent-warning); opacity: 0.9;" title="Renew / Update Access Token" onclick="toggleRenewForm('{{ $account->id }}')">
+                                            <i class="fas fa-key"></i>
                                         </button>
+                                        
+                                        <form action="{{ route('facebook.account.delete', $account->id) }}" method="POST" onsubmit="return confirm('Disconnect this account and all associated pages?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="switch-toggle" style="color: var(--accent-danger); opacity: 0.8;" title="Disconnect Account">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Renew Token Form (Hidden by default) -->
+                                <div id="renew-form-{{ $account->id }}" class="renew-token-form" style="display: none; margin-top: 1rem; padding: 0.75rem; background: rgba(245, 158, 11, 0.05); border: 1px dashed rgba(245, 158, 11, 0.3); border-radius: var(--radius-md); margin-bottom: 0.5rem;">
+                                    <form action="{{ route('facebook.account.renew', $account->id) }}" method="POST">
+                                        @csrf
+                                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                                            <label style="color: var(--accent-warning); font-size: 0.8rem; font-weight: 600;">Enter New User Access Token:</label>
+                                            <input type="text" name="new_access_token" class="input-control" placeholder="EAAwv1..." required style="padding: 0.5rem 0.75rem; font-size: 0.85rem;">
+                                        </div>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <button type="submit" class="btn btn-primary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem; width: auto; background-color: var(--accent-warning); box-shadow: none; border: none; cursor: pointer; color: white; font-weight: 600; border-radius: var(--radius-md);">
+                                                <i class="fas fa-sync-alt"></i> Update Token
+                                            </button>
+                                            <button type="button" class="btn btn-danger-outline" style="padding: 0.4rem 0.75rem; font-size: 0.8rem; width: auto; border: 1px solid rgba(255,255,255,0.2); color: var(--text-muted); background: transparent; cursor: pointer; font-weight: 600; border-radius: var(--radius-md);" onclick="toggleRenewForm('{{ $account->id }}')">
+                                                Cancel
+                                            </button>
+                                        </div>
                                     </form>
                                 </div>
 
@@ -875,9 +911,16 @@
                                             <i class="fab fa-facebook-f"></i> View Post <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i>
                                         </a>
                                     @else
-                                        <span style="font-size: 0.8rem; color: var(--accent-danger); font-weight: 500;" title="{{ $post->error_message }}">
-                                            {{ $post->error_message ? \Illuminate\Support\Str::limit($post->error_message, 30) : 'API Error' }}
-                                        </span>
+                                        <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                                            <span style="font-size: 0.8rem; color: var(--accent-danger); font-weight: 500;" title="{{ $post->error_message }}">
+                                                {{ $post->error_message ? \Illuminate\Support\Str::limit($post->error_message, 30) : 'API Error' }}
+                                            </span>
+                                            @if($post->page && $post->page->account)
+                                                <button type="button" class="btn btn-danger-outline" style="padding: 0.15rem 0.4rem; font-size: 0.7rem; width: auto; font-weight: 600; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem; border-color: rgba(239, 68, 68, 0.4); color: var(--accent-danger); cursor: pointer;" onclick="toggleRenewForm('{{ $post->page->account->id }}'); document.getElementById('renew-form-{{ $post->page->account->id }}').scrollIntoView({behavior: 'smooth'});">
+                                                    <i class="fas fa-key"></i> Renew Token
+                                                </button>
+                                            @endif
+                                        </div>
                                     @endif
                                 </td>
                             </tr>
@@ -898,12 +941,17 @@
         element.classList.add('active');
 
         // Toggle forms
-        if (mode === 'user-mode') {
-            document.getElementById('form-user-mode').style.display = 'block';
-            document.getElementById('form-single-mode').style.display = 'none';
+        document.getElementById('form-oauth-mode').style.display = (mode === 'oauth-mode') ? 'block' : 'none';
+        document.getElementById('form-user-mode').style.display = (mode === 'user-mode') ? 'block' : 'none';
+        document.getElementById('form-single-mode').style.display = (mode === 'single-mode') ? 'block' : 'none';
+    }
+
+    function toggleRenewForm(id) {
+        const form = document.getElementById(`renew-form-${id}`);
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
         } else {
-            document.getElementById('form-user-mode').style.display = 'none';
-            document.getElementById('form-single-mode').style.display = 'block';
+            form.style.display = 'none';
         }
     }
 </script>
