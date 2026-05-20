@@ -1,0 +1,27 @@
+{
+    "name": "tokalink/facebook-autopost",
+    "description": "Multi-user and multi-page Facebook Meta auto-post package for Laravel.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tokalink"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tokalink\\FacebookAutopost\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Tokalink\\FacebookAutopost\\FacebookAutopostServiceProvider"
+            ]
+        }
+    }
+}
