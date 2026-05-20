@@ -1,11 +1,11 @@
 <?php
 
-namespace Tokalink\FacebookAutopost\Console\Commands;
+namespace R124LEfendi\FacebookAutopost\Console\Commands;
 
 use Illuminate\Console\Command;
-use Tokalink\FacebookAutopost\Models\FacebookPage;
-use Tokalink\FacebookAutopost\Models\FacebookPost;
-use Tokalink\FacebookAutopost\Services\FacebookService;
+use R124LEfendi\FacebookAutopost\Models\FacebookPage;
+use R124LEfendi\FacebookAutopost\Models\FacebookPost;
+use R124LEfendi\FacebookAutopost\Services\FacebookService;
 
 class FacebookPostCommand extends Command
 {

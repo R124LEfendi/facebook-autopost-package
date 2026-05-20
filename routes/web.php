@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Tokalink\FacebookAutopost\Http\Controllers\FacebookController;
+use R124LEfendi\FacebookAutopost\Http\Controllers\FacebookController;
 
 Route::middleware(['web'])->prefix('facebook')->name('facebook.')->group(function () {
     Route::get('/', [FacebookController::class, 'index'])->name('dashboard');

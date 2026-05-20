@@ -1,15 +1,15 @@
 <?php
 
-namespace Tokalink\FacebookAutopost\Http\Controllers;
+namespace R124LEfendi\FacebookAutopost\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Exception;
-use Tokalink\FacebookAutopost\Models\FacebookAccount;
-use Tokalink\FacebookAutopost\Models\FacebookPage;
-use Tokalink\FacebookAutopost\Models\FacebookPost;
-use Tokalink\FacebookAutopost\Services\FacebookService;
+use R124LEfendi\FacebookAutopost\Models\FacebookAccount;
+use R124LEfendi\FacebookAutopost\Models\FacebookPage;
+use R124LEfendi\FacebookAutopost\Models\FacebookPost;
+use R124LEfendi\FacebookAutopost\Services\FacebookService;
 
 class FacebookController extends Controller
 {

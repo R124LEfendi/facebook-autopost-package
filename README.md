@@ -22,24 +22,24 @@ This package is designed as a standalone, self-contained library so you can drop
 
 ## 🚀 Installation & Integration Guide
 
-### Step 1: Place the Package
-Make sure the `facebook-autopost-package` folder is placed in the root of your Laravel application (e.g. `facebook-autopost-package/`).
-
-### Step 2: Register Package Repository in `composer.json`
-To load this local package elegantly without manual path hacks, open your main application's `composer.json` and add a local path repository configuration:
+### Step 1: Register Package Repository in `composer.json`
+To install this package, open your main Laravel application's `composer.json` and add the GitHub repository to the `repositories` block:
 
 ```json
 "repositories": [
     {
         "type": "vcs",
-        "url": "R124LEfendi/facebook-autopost-package"
+        "url": "https://github.com/R124LEfendi/facebook-autopost-package.git"
     }
 ],
 ```
 
-Then, require the package using standard Composer:
+---
+
+### Step 2: Install Package via Composer
+After configuring the repository, install the package using standard Composer:
 ```bash
-composer require R124LEfendi/facebook-autopost-package
+composer require r124lefendi/facebook-autopost
 ```
 
 *Note: Since Laravel supports package auto-discovery, it will automatically register the `R124LEfendi\FacebookAutopost\FacebookAutopostServiceProvider` service provider.*

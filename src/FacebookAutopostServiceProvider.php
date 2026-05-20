@@ -1,9 +1,9 @@
 <?php
 
-namespace Tokalink\FacebookAutopost;
+namespace R124LEfendi\FacebookAutopost;
 
 use Illuminate\Support\ServiceProvider;
-use Tokalink\FacebookAutopost\Console\Commands\FacebookPostCommand;
+use R124LEfendi\FacebookAutopost\Console\Commands\FacebookPostCommand;
 
 class FacebookAutopostServiceProvider extends ServiceProvider
 {
@@ -13,8 +13,8 @@ class FacebookAutopostServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Bind Facebook Service
-        $this->app->singleton(\Tokalink\FacebookAutopost\Services\FacebookService::class, function ($app) {
-            return new \Tokalink\FacebookAutopost\Services\FacebookService();
+        $this->app->singleton(\R124LEfendi\FacebookAutopost\Services\FacebookService::class, function ($app) {
+            return new \R124LEfendi\FacebookAutopost\Services\FacebookService();
         });
     }
 

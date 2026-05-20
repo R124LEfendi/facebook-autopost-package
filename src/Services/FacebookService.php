@@ -1,6 +1,6 @@
 <?php
 
-namespace Tokalink\FacebookAutopost\Services;
+namespace R124LEfendi\FacebookAutopost\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;

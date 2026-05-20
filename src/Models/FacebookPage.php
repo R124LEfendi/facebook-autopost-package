@@ -1,6 +1,6 @@
 <?php
 
-namespace Tokalink\FacebookAutopost\Models;
+namespace R124LEfendi\FacebookAutopost\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
