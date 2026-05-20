@@ -37,10 +37,15 @@ To install this package, open your main Laravel application's `composer.json` an
 ---
 
 ### Step 2: Install Package via Composer
-After configuring the repository, install the package using standard Composer:
+Since the package is hosted directly on GitHub and may not have a tagged release yet, Composer will treat it as a development version (`dev-main`). Because Laravel's default `composer.json` restricts packages to `stable` stability, you must explicitly require the `dev-main` branch:
+
 ```bash
-composer require r124lefendi/facebook-autopost
+composer require r124lefendi/facebook-autopost:dev-main
 ```
+
+> [!TIP]
+> **Production Tagging:** Once you are ready to publish stable versions, you can create a release tag on GitHub (e.g. `v1.0.0`). After doing so, anyone can install the package normally using:
+> `composer require r124lefendi/facebook-autopost`
 
 *Note: Since Laravel supports package auto-discovery, it will automatically register the `R124LEfendi\FacebookAutopost\FacebookAutopostServiceProvider` service provider.*
 
