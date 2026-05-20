@@ -31,18 +31,18 @@ To load this local package elegantly without manual path hacks, open your main a
 ```json
 "repositories": [
     {
-        "type": "path",
-        "url": "./facebook-autopost-package"
+        "type": "vcs",
+        "url": "R124LEfendi/facebook-autopost-package"
     }
 ],
 ```
 
 Then, require the package using standard Composer:
 ```bash
-composer require tokalink/facebook-autopost
+composer require R124LEfendi/facebook-autopost-package
 ```
 
-*Note: Since Laravel supports package auto-discovery, it will automatically register the `Tokalink\FacebookAutopost\FacebookAutopostServiceProvider` service provider.*
+*Note: Since Laravel supports package auto-discovery, it will automatically register the `R124LEfendi\FacebookAutopost\FacebookAutopostServiceProvider` service provider.*
 
 ### Step 3: Run Database Migrations
 Run your application migrations to create the required `facebook_accounts`, `facebook_pages`, and `facebook_posts` tables:
@@ -89,7 +89,7 @@ php artisan facebook:post-multi --message="Broadcast content" --pages="all"
 
 ### **Post with Attachments (Link & Image File)**
 ```bash
-php artisan facebook:post-multi --message="Check out Tokalink!" --link="https://tokalink.co" --image="public/uploads/promo.jpg" --pages="all"
+php artisan facebook:post-multi --message="Check out R124LEfendi!" --link="https://github.com/R124LEfendi" --pages="all"
 ```
 
 ---
