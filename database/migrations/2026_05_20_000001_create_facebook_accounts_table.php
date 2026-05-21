@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->string('name');
             $table->string('email')->nullable();
             $table->text('access_token');
-            $table->string('avatar')->nullable();
+            $table->text('avatar')->nullable();
             $table->timestamps();
         });
     }

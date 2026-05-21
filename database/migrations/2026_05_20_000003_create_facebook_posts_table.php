@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->foreignId('facebook_page_id')->constrained()->onDelete('cascade');
             $table->text('message')->nullable();
             $table->string('link')->nullable();
-            $table->string('image_path')->nullable();
+            $table->text('image_path')->nullable();
             $table->string('fb_post_id')->nullable();
             $table->string('status')->default('pending');
             $table->text('error_message')->nullable();
