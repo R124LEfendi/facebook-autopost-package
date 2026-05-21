@@ -29,7 +29,7 @@ To install this package, open your main Laravel application's `composer.json` an
 "repositories": [
     {
         "type": "vcs",
-        "url": "https://github.com/R124LEfendi/facebook-autopost-package.git"
+        "url": "https://github.com/R124LEfendi/instagram-publisher"
     }
 ],
 ```
