@@ -133,7 +133,7 @@ class FacebookService
             if ($imagePath && file_exists($imagePath)) {
                 $url = "{$this->baseUrl}/{$this->apiVersion}/{$pageId}/photos";
                 
-                $request = Http::attach(
+                $request = Http::timeout(180)->attach(
                     'source',
                     file_get_contents($imagePath),
                     basename($imagePath)
@@ -161,7 +161,7 @@ class FacebookService
                     $params['caption'] = $message;
                 }
 
-                $response = Http::post($url, $params);
+                $response = Http::timeout(180)->post($url, $params);
             }
             // Case 3: Text and/or Link post
             else {
@@ -178,7 +178,7 @@ class FacebookService
                     $params['link'] = $link;
                 }
 
-                $response = Http::post($url, $params);
+                $response = Http::timeout(60)->post($url, $params);
             }
 
             $result = $response->json();
